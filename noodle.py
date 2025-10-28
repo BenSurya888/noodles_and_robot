@@ -1,36 +1,91 @@
 import time
 
+
+# TASK 1
+capacity_of_tank = 500  # ml
+time_stamp = 100  # second
+
 def open_water_valve(seconds):
-		return seconds * 100
+		total_water = time_stamp * seconds
+		if total_water > capacity_of_tank:
+			total_water = capacity_of_tank
+		return int(total_water)
+
+print(f"Water added: {open_water_valve(5)}ml")
+
 
 def is_temperature_ok(current_temp):
-		return 75 <= current_temp <= 80
+		if 75 <= current_temp <= 80:
+			return True
+		else:
+			return False
+
+print(f"Is temperature ok? {is_temperature_ok(78)}")
+print(f"Is temperature not ok? {is_temperature_ok(70)}")
 
 def add_seasoning(ketchup_ml, sausage_ml, powder_ml):
-		return ketchup_ml == 3 and sausage_ml == 2 and powder_ml == 3
+		if ketchup_ml == 3 and sausage_ml == 2 and powder_ml == 3:
+			return True
+		else:
+			return False
+
+print(f"Are seasonings correct? {add_seasoning(3, 2, 3)}")
+print(f"Are seasonings incorrect? {add_seasoning(2, 2, 3)}")
 
 def fill_bucket(target_amount):
-		return target_amount / 100
+		total_filled = 0
+		seconds = 0
+		while total_filled < target_amount:
+			total_filled += open_water_valve(1)
+			seconds += 1
+		return seconds
+
+seconds_needed = fill_bucket(500)
+print(f"Seconds needed to fill bucket: {seconds_needed} seconds")
 
 def heat_water(current_temp, target_temp):
-		diff = target_temp - current_temp
-		if diff <= 0:
+		if current_temp >= target_temp:
 			return 0
-		return diff / 5
+		temp_diff = target_temp - current_temp
+		seconds_needed = temp_diff / 5
+		return int(seconds_needed)
+
+seconds_to_heat = heat_water(25, 80)
+print(f"Seconds needed to heat water: {seconds_to_heat} seconds")
+
+min_temp = 75
+max_temp = 80
 
 def maintain_temperature(current_temp, target_temp):
-		if current_temp < target_temp:
-			return "INCREASE"
-		if current_temp > target_temp:
-			return "DECREASE"
-		return "MAINTAIN"
+		if current_temp < min_temp:
+			return "increase"
+		elif current_temp > max_temp:
+			return "decrease"
+		else:
+			return "maintain"
+
+cooking_seconds = 120
 
 def cook_noodle(cooking_seconds):
-		return "READY" if cooking_seconds >= 120 else "COOKING"
+		if cooking_seconds >= 120:
+			return "ready"
+		elif cooking_seconds < 120:
+			return "cooking"
 
 def dispense_all_seasonings():
-		return {"ketchup": 3, "sausage": 2, "powder": 3}
+	ketchup_dispensed = 3
+	sausage_dispensed = 2
+	powder_dispensed = 3
 
+	result = {
+		'ketchup': ketchup_dispensed,
+		'sausage': sausage_dispensed,
+		'powder': powder_dispensed
+	}
+
+print(f"Dispensed seasonings: {dispense_all_seasonings()}ml")
+
+# TASK 2
 class WaterSystem:
 	def __init__(self):
 		self.tank_capacity = 5000
