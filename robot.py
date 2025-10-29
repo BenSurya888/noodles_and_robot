@@ -1,5 +1,6 @@
 import random
 import keyboard
+import time
 class FarmMap:
     """This class is ALREADY DONE - just copy and use it!"""
     
@@ -95,7 +96,7 @@ def find_nearest_wheat(farm_map, robot_x, robot_y):
                     nearest_wheat = (x, y)
 
     return nearest_wheat
-farm = FarmMap(num_wheat=5)
+farm = FarmMap(num_wheat=10)
 nearest = find_nearest_wheat(farm, 0, 0)
 print(f"Nearest wheat is at: {nearest}")
 
@@ -173,24 +174,28 @@ def move_robot_to(robot, target_x, target_y):
         print(f"Moving RIGHT... now at {robot.get_position()}")
         farm.display(robot.x, robot.y)
         print(robot.get_status())
+        time.sleep(0.3)
 
     while robot.x > target_x:
         robot.move("LEFT")
         print(f"Moving LEFT... now at {robot.get_position()}")
         farm.display(robot.x, robot.y)
         print(robot.get_status())
+        time.sleep(0.3)
 
     while robot.y < target_y:
         robot.move("DOWN")
         print(f"Moving DOWN... now at {robot.get_position()}")
         farm.display(robot.x, robot.y)
         print(robot.get_status())
+        time.sleep(0.3)
 
     while robot.y > target_y:
         robot.move("UP")
         print(f"Moving UP... now at {robot.get_position()}")
         farm.display(robot.x, robot.y)
         print(robot.get_status())
+        time.sleep(0.3)
 
     print("Robot has reached the target!")
     print(f"Final position: {robot.get_position()}")
@@ -201,6 +206,9 @@ farm = FarmMap(num_wheat=5)
 
 move_robot_to(robot, 3, 4)
 
+# AUTOMATIC PATROL AND HARVEST
+print("========================")
+
 def patrol_and_harvest(robot, farm_map):
     while farm_map.count_remaining_wheat() > 0 and robot.energy > 0:
         nearest_wheat = find_nearest_wheat(farm_map, robot.x, robot.y)
@@ -210,6 +218,7 @@ def patrol_and_harvest(robot, farm_map):
         
         target_x, target_y = nearest_wheat
         move_robot_to(robot, target_x, target_y)
+        time.sleep(0.5)
         
         if robot.harvest(farm_map):
             print(f"Harvested wheat at {robot.get_position()}!")
@@ -218,61 +227,81 @@ def patrol_and_harvest(robot, farm_map):
         
         print(robot.get_status())
         farm_map.display(robot.x, robot.y)
+        time.sleep(1)
     
     print("Patrol and harvest complete.")
     print(f"Total wheat collected: {robot.wheat_collected}")
     print(f"Remaining energy: {robot.energy}")
 
-robot = Robot()
-farm = FarmMap(num_wheat=10)
 
-print("initial farm state:")
-farm.display(robot.x, robot.y)
-print(robot.get_status())
-
-patrol_and_harvest(robot, farm)
-
-print("final farm state:")
-farm.display(robot.x, robot.y)
-print(robot.get_status())
-print(f"Wheat remaining on farm: {farm.count_remaining_wheat()}")
-
+# MANUAL CONTROL
 # RUNNING ROBOT WITH KEYBOARD INPUT IN TERMINAL
 
 def run_robot_with_keyboard(robot, farm_map):
     farm_map.display(robot.x, robot.y)
     print(robot.get_status())
     while robot.energy > 0 and farm_map.count_remaining_wheat() > 0:
-        event = keyboard.read_key()
-        moved = False
-        if event.lower() == 'w':
-            moved = robot.move("UP")
-        elif event.lower() == 's':
-            moved = robot.move("DOWN")
-        elif event.lower() == 'a':
-            moved = robot.move("LEFT")
-        elif event.lower() == 'd':
-            moved = robot.move("RIGHT")
-        elif event.lower() == 'q':
-            print("Quit Game Succes!")
-            break
+        event = keyboard.read_event()
+        if event.event_type == 'down':
+            key = event.name
+            moved = False
+            match key:
+                case 'w':
+                    moved = robot.move("UP")
+                case 's':
+                    moved = robot.move("DOWN")
+                case 'a':
+                    moved = robot.move("LEFT")
+                case 'd':
+                    moved = robot.move("RIGHT")
+                case 'f':
+                    harvested = robot.harvest(farm_map)
+                    farm_map.display(robot.x, robot.y)
+                    print(robot.get_status())
+                    if harvested:
+                        print("Wheat harvested")
+                    else:
+                        print("No wheat to harvest here")
+                    time.sleep(0.2)
+                    continue
+                case 'q':
+                    print("Quit Game Succes!")
+                    break
+                case _:
+                    pass
 
-        if moved:
-            harvested = robot.harvest(farm_map)
-            farm_map.display(robot.x, robot.y)
-            print(robot.get_status())
-            if harvested:
-                print("Wheat harvested!")
-        else:
-            if event.lower() in ['w', 'a', 's', 'd']:
-                print("Can't move")
+            if moved:
+                farm_map.display(robot.x, robot.y)
+                print(robot.get_status())
+                time.sleep(0.2)
+            else:
+                if key in ['w', 'a', 's', 'd']:
+                    print("Can't move")
+                time.sleep(0.1)
 
     print("Game over!")
     print(f"Wheat collected: {robot.wheat_collected}")
     print(f"Energy left: {robot.energy}")
     print(f"Wheat remaining: {farm_map.count_remaining_wheat()}")
 
-if __name__ == "__main__":
-    farm = FarmMap(num_wheat=10)
+def main():
+    print("Choose mode:")
+    print("1. Run robot with manual control")
+    print("2. Run robot automatic patrol and harvest")
+    choice = input("Enter 1 or 2: ")
+
     robot = Robot()
-    run_robot_with_keyboard(robot, farm)
+
+    if choice == "1":
+        run_robot_with_keyboard(robot, farm)
+    elif choice == "2":
+        patrol_and_harvest(robot, farm)
+        print("final farm state:")
+        farm.display(robot.x, robot.y)
+        print(robot.get_status())
+        print(f"Wheat remaining on farm: {farm.count_remaining_wheat()}")
+    else:
+        print("Invalid choice.")
+
+if __name__ == "__main__":
+    main()
