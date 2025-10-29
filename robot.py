@@ -1,5 +1,5 @@
 import random
-
+import keyboard
 class FarmMap:
     """This class is ALREADY DONE - just copy and use it!"""
     
@@ -236,3 +236,43 @@ print("final farm state:")
 farm.display(robot.x, robot.y)
 print(robot.get_status())
 print(f"Wheat remaining on farm: {farm.count_remaining_wheat()}")
+
+# RUNNING ROBOT WITH KEYBOARD INPUT IN TERMINAL
+
+def run_robot_with_keyboard(robot, farm_map):
+    farm_map.display(robot.x, robot.y)
+    print(robot.get_status())
+    while robot.energy > 0 and farm_map.count_remaining_wheat() > 0:
+        event = keyboard.read_key()
+        moved = False
+        if event.lower() == 'w':
+            moved = robot.move("UP")
+        elif event.lower() == 's':
+            moved = robot.move("DOWN")
+        elif event.lower() == 'a':
+            moved = robot.move("LEFT")
+        elif event.lower() == 'd':
+            moved = robot.move("RIGHT")
+        elif event.lower() == 'q':
+            print("Quitting robot control.")
+            break
+
+        if moved:
+            harvested = robot.harvest(farm_map)
+            farm_map.display(robot.x, robot.y)
+            print(robot.get_status())
+            if harvested:
+                print("Wheat harvested!")
+        else:
+            if event.lower() in ['w', 'a', 's', 'd']:
+                print("Can't move")
+
+    print("Game over!")
+    print(f"Wheat collected: {robot.wheat_collected}")
+    print(f"Energy left: {robot.energy}")
+    print(f"Wheat remaining: {farm_map.count_remaining_wheat()}")
+
+if __name__ == "__main__":
+    farm = FarmMap(num_wheat=10)
+    robot = Robot()
+    run_robot_with_keyboard(robot, farm)
