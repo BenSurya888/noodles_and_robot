@@ -254,7 +254,7 @@ def run_robot_with_keyboard(robot, farm_map):
         elif event.lower() == 'd':
             moved = robot.move("RIGHT")
         elif event.lower() == 'q':
-            print("Quitting robot control.")
+            print("Quit Game Succes!")
             break
 
         if moved:
