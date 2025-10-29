@@ -1,16 +1,14 @@
 import time
 
 # TASK 1
-capacity_of_tank = 500  # ml
+capacity_water = 500  # ml
 time_stamp = 100  # second
 
 def open_water_valve(seconds):
 		total_water = time_stamp * seconds
-		if total_water > capacity_of_tank:
-			total_water = capacity_of_tank
+		if total_water > capacity_water:
+			total_water = capacity_water
 		return int(total_water)
-
-print(f"Water added: {open_water_valve(5)}ml")
 
 def is_temperature_ok(current_temp):
 		if 75 <= current_temp <= 80:
@@ -18,23 +16,17 @@ def is_temperature_ok(current_temp):
 		else:
 			return False
 
-print(f"Is temperature ok? {is_temperature_ok(78)}")
-print(f"Is temperature not ok? {is_temperature_ok(70)}")
-
 def add_seasoning(ketchup_ml, sausage_ml, powder_ml):
 		if ketchup_ml == 3 and sausage_ml == 2 and powder_ml == 3:
 			return True
 		else:
 			return False
 
-print(f"Are seasonings correct? {add_seasoning(3, 2, 3)}")
-print(f"Are seasonings incorrect? {add_seasoning(2, 2, 3)}")
-
 def fill_bucket(target_amount):
 		total_filled = 0
 		seconds = 0
 		while total_filled < target_amount:
-			total_filled += open_water_valve(1)
+			total_filled += open_water_valve(5)
 			seconds += 1
 		return seconds
 
@@ -87,7 +79,6 @@ print(f"Dispensed seasonings: {dispense_all_seasonings()}ml")
 class WaterSystem:
 	def __init__(self):
 		self.tank_capacity = 5000
-		self.current_water_in_tank = 5000
 		self.bucket_capacity = 500
 		self.current_water_in_bucket = 0
 		self.current_temperature = 25
@@ -95,55 +86,70 @@ class WaterSystem:
 
 
 	def open_valve(self, seconds):
-		self.is_valve_open = True
-		water_to_add = seconds * 100
-		print(f"Valve opened for {seconds} seconds...")
-		time.sleep(seconds)
-		if water_to_add > self.current_water_in_tank:
-			water_to_add = self.current_water_in_tank
-		if self.current_water_in_bucket + water_to_add > self.bucket_capacity:
-			water_to_add = self.bucket_capacity - self.current_water_in_bucket
-		self.current_water_in_bucket += water_to_add
-		self.current_water_in_tank -= water_to_add
-		print(f"Added {water_to_add}ml water to bucket.")
-		return water_to_add
+		water_add = 0
+		seconds_per_time = 0
 
-	def close_valve(self):
-		self.is_valve_open = False
-		print("Valve closed. Waiting 2 seconds...")
-		time.sleep(2)
-		return
+		while self.current_water_in_bucket < self.bucket_capacity and seconds_per_time < seconds:
+			water_add = open_water_valve(1)
+			self.current_water_in_bucket += water_add
+			if self.current_water_in_bucket > self.bucket_capacity:
+				self.current_water_in_bucket = self.bucket_capacity
+			seconds_per_time += 1
+			print(f"Filling... Current water in bucket: {self.current_water_in_bucket}ml")
+			time.sleep(1)
 
-	def heat_up(self, seconds):
-		increase = seconds * 5
-		print(f"Heating up for {seconds} seconds...")
-		time.sleep(seconds)
-		self.current_temperature += increase
-		if self.current_temperature > 100:
-			self.current_temperature = 100
-		print(f"Temperature increased by {increase}C.")
-		return increase
+	def close_valve(self, target_fill=500):
+		seconds_per_time = 0
+		while self.current_water_in_bucket > target_fill:
+			self.current_water_in_bucket -= 100
+			if self.current_water_in_bucket < target_fill:
+				self.current_water_in_bucket = target_fill
+			seconds_per_time += 1
+			print(f"Closing valve... Current water in bucket: {self.current_water_in_bucket}ml")
+			time.sleep(1)
+		print(f"Valve closed. Final water in bucket: {self.current_water_in_bucket}ml")
+		return seconds_per_time
+		
+		
+	def heat_up(self, target_temp):
+		seconds_per_time = 0
+		while self.current_temperature < target_temp:
+			self.current_temperature += 5
+			if self.current_temperature > target_temp:
+				self.current_temperature = target_temp
+			seconds_per_time += 1
+			print(f"Heating... Current temperature: {self.current_temperature}C")
+			time.sleep(1)
+		print(f"Target temperature {target_temp}C reached.")
+		return seconds_per_time
 
-	def cool_down(self, seconds):
-		decrease = seconds * 5
-		print(f"Cooling down for {seconds} seconds...")
-		time.sleep(seconds)
-		self.current_temperature -= decrease
-		if self.current_temperature < 0:
-			self.current_temperature = 0
-		print(f"Temperature decreased by {decrease}C.")
-		return decrease
+	def cool_down(self, target_temp):
+		seconds_per_time = 0
+		while self.current_temperature > target_temp:
+			self.current_temperature -= 5
+			if self.current_temperature < target_temp:
+				self.current_temperature = target_temp
+			seconds_per_time += 1
+			print(f"Cooling... Current temperature: {self.current_temperature}C")
+			time.sleep(1)
+		print(f"Target temperature {target_temp}C reached.")
+		return seconds_per_time
 
 	def empty_bucket(self):
-		print("Emptying bucket... Waiting 2 seconds...")
-		time.sleep(2)
-		self.current_water_in_bucket = 0
+		print("Emptying bucket...")
+		seconds_per_time = 0
+		while self.current_water_in_bucket > 0:
+			self.current_water_in_bucket -= 100
+			if self.current_water_in_bucket < 0:
+				self.current_water_in_bucket = 0
+			seconds_per_time += 1
+			print(f"Emptying... Current water in bucket: {self.current_water_in_bucket}ml")
+			time.sleep(1)
 		print("Bucket emptied.")
-		return
+		return seconds_per_time
 
 	def get_status(self, noodles_portions, ketchup, sausage, powder, noodles_made):
 		lines = [
-			f"Water Tank: {self.current_water_in_tank}ml / {self.tank_capacity}ml",
 			f"Bucket: {self.current_water_in_bucket}ml / {self.bucket_capacity}ml",
 			f"Temperature: {self.current_temperature}C",
 			f"Noodle Portions: {noodles_portions}",
@@ -162,11 +168,17 @@ class Dispenser:
 		self.ml_per_trigger = ml_per_trigger
 
 	def trigger(self, times):
-		total = times * self.ml_per_trigger
-		if total > self.current_amount:
-			total = self.current_amount
-		self.current_amount -= total
-		return total
+		dispensed = 0
+		for i in range(times):
+			if self.current_amount > 0:
+				self.current_amount -= self.ml_per_trigger
+				dispensed += self.ml_per_trigger
+				print(f"Dispensing {self.name}... {dispensed}{self.name if self.name != 'Noodle' else ' portion'} dispensed")
+				time.sleep(1)
+			else:
+				print(f"{self.name} out of stock!")
+				break
+		return dispensed
 
 	def refill(self):
 		self.current_amount = self.capacity
@@ -185,31 +197,39 @@ class NoodleMachine:
 		self.noodles_made = 0
 
 	def _delay(self, seconds):
-		print(f"Waiting {seconds} seconds...")
-		time.sleep(seconds)
+		for i in range(seconds):
+			print(f"Cooking... {i+1}s")
+			time.sleep(1)
 		return
 
 	def make_noodle(self):
 		self.water_system.current_temperature = 25
 		print("Filling water... Need 3 seconds for 300ml")
 		self.water_system.open_valve(3)
-		self.water_system.close_valve()
+		print("="*50)
+		print("Closing valve to keep 300ml water in bucket...")
+		self.water_system.close_valve(1)
+		print("="*50)
 		print("Heating water from 25C to 77C... Need 10 seconds")
-		self.water_system.heat_up(10)
+		self.water_system.heat_up(77)
+		print("="*50)
 		print("Dispensing 1 portion of noodle")
 		self.noodle_dispenser.trigger(1)
+		print("="*50)
 		print("Cooking... Need 15 seconds")
 		self._delay(15)
+		print("="*50)
 		print("Adding 3ml ketchup")
-		for _ in range(3):
-			self.ketchup_dispenser.trigger(1)
+		self.ketchup_dispenser.trigger(3)
+		print("="*50)
 		print("Adding 2ml sausage")
-		for _ in range(2):
-			self.sausage_dispenser.trigger(1)
+		self.sausage_dispenser.trigger(2)
+		print("="*50)
 		print("Adding 3ml powder")
-		for _ in range(3):
-			self.powder_dispenser.trigger(1)
+		self.powder_dispenser.trigger(3)
+		print("="*50)
 		print("Noodle is ready! Enjoy your meal!")
+		print("="*50)
 		print("Cleaning bucket... Need 2 seconds")
 		self.water_system.empty_bucket()
 		self.noodles_made += 1
