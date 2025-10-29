@@ -171,18 +171,26 @@ def move_robot_to(robot, target_x, target_y):
     while robot.x < target_x:
         robot.move("RIGHT")
         print(f"Moving RIGHT... now at {robot.get_position()}")
+        farm.display(robot.x, robot.y)
+        print(robot.get_status())
 
     while robot.x > target_x:
         robot.move("LEFT")
         print(f"Moving LEFT... now at {robot.get_position()}")
+        farm.display(robot.x, robot.y)
+        print(robot.get_status())
 
     while robot.y < target_y:
         robot.move("DOWN")
         print(f"Moving DOWN... now at {robot.get_position()}")
+        farm.display(robot.x, robot.y)
+        print(robot.get_status())
 
     while robot.y > target_y:
         robot.move("UP")
         print(f"Moving UP... now at {robot.get_position()}")
+        farm.display(robot.x, robot.y)
+        print(robot.get_status())
 
     print("Robot has reached the target!")
     print(f"Final position: {robot.get_position()}")

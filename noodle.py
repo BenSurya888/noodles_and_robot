@@ -1,6 +1,5 @@
 import time
 
-
 # TASK 1
 capacity_of_tank = 500  # ml
 time_stamp = 100  # second
@@ -12,7 +11,6 @@ def open_water_valve(seconds):
 		return int(total_water)
 
 print(f"Water added: {open_water_valve(5)}ml")
-
 
 def is_temperature_ok(current_temp):
 		if 75 <= current_temp <= 80:
